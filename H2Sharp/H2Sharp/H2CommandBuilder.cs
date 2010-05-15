@@ -116,4 +116,100 @@ namespace Supplix.Utils.H2
             adapter.InsertCommand = insertCommand;
         }
     }
+	public static class ConnectionExtensions
+    {
+        public static Dictionary<String, DbType> GetColumnsDataType(this H2Connection connection, String tableName)
+        {
+            var columnNamesAndValues = connection.ReadMap<String>("select column_name, type_name from INFORMATION_SCHEMA.columns where lower(table_name) = '" + tableName.ToLower() + "'");
+            var ret = new Dictionary<String, DbType>();
+            foreach (var kv in columnNamesAndValues)
+            {
+                DbType type;
+                switch (kv.Value)
+                {
+                    case "VARCHAR":
+                    case "VARCHAR2":
+                        type = DbType.StringFixedLength;
+                        break;
+                    case "INT":
+                    case "INTEGER":
+                        type = DbType.Int32;
+                        break;
+                    case "DECIMAL":
+                        type = DbType.Decimal;
+                        break;
+                    case "BIGINT":
+                        type = DbType.Int64;
+                        break;
+                    case "DOUBLE":
+                        type = DbType.Double;
+                        break;
+                    default:
+                        throw new Exception("Unknown type '" + kv.Value + "'");
+                }
+                ret[kv.Key] = type;
+            }
+            return ret;
+        }
+        public static List<String> ReadStrings(this H2Connection connection, String query)
+        {
+            var ret = new List<String>();
+            var reader = new H2Command(query, connection).ExecuteReader();
+            while (reader.Read())
+                ret.Add(reader.GetString(0));
+            return ret;
+        }
+        public static DataTable ReadTable(this H2Connection connection, String tableName)
+        {
+            if (tableName == null)
+                return null;
+            return connection.ReadQuery("select * from \"" + tableName + "\"");
+        }
+        public static DataTable ReadQuery(this H2Connection connection, String query)
+        {
+            if (query == null)
+                return null;
+            var table = new DataTable()
+            {
+                CaseSensitive = false
+            };
+            new H2DataAdapter(new H2Command(query, connection)).Fill(table);
+            return table;
+        }
+        public static String ReadString(this H2Connection connection, String query)
+        {
+            var result = new H2Command(query, connection).ExecuteScalar() as String;
+            return result;
+        }
+        public static Dictionary<String, T> ReadMap<T>(this H2Connection connection, String query)
+        {
+            var ret = new Dictionary<String, T>();
+            var reader = new H2Command(query, connection).ExecuteReader();
+            while (reader.Read())
+            {
+                var key = reader.GetString(0);
+                var value = reader.GetValue(1);
+                if (value == DBNull.Value)
+                    ret[key] = default(T);
+                else
+                    ret[key] = (T)value;
+            }
+            return ret;
+        }
+    }
+	public static class CollectionExtensions
+    {
+        public static T[] Array<T>(params T[] a)
+        {
+            return a;
+        }
+        public static String Commas<T>(this IEnumerable<T> col)
+        {
+            return col.Implode(", ");
+        }
+        public static String Implode<T>(this IEnumerable<T> col, String sep)
+        {
+            return col.Where(e => e != null).Select(e => e.ToString()).Aggregate((a, b) => a + sep + b);
+        }
+    }
 }

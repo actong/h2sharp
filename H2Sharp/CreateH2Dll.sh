@@ -10,10 +10,10 @@ if [[ ! -d "$IKVM_HOME" ]] ; then
 	exit 1 ;
 fi
 
-H2_LIBS_OUT=h2libs
+H2_LIBS_OUT=Dlls
 
-# Create output dir
-if [[ ! -d $H2_LIBS_OUT ]] ; then mkdir $H2_LIBS_OUT ; fi
+## Create output dir
+#if [[ ! -d $H2_LIBS_OUT ]] ; then mkdir $H2_LIBS_OUT ; fi
 
 cd $H2_LIBS_OUT
 

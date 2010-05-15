@@ -70,9 +70,9 @@ namespace System.Data.H2.Api
         /// </summary>
         protected abstract void OnClosingDatabase();
 
-        void org.h2.api.DatabaseEventListener.diskSpaceIsLow(long stillAvailable)
+        void org.h2.api.DatabaseEventListener.diskSpaceIsLow()
         {
-            OnDiskSpaceIsLow(stillAvailable);
+            OnDiskSpaceIsLow();
         }
         /// <summary>
         /// This method is called if the disk space is very low.
@@ -81,9 +81,8 @@ namespace System.Data.H2.Api
         /// then throw a SQLException. The database should not be accessed from
         /// within this method (even to close it).
         /// </summary>
-        /// <param name="stillAvailable">the estimated space that is still available, in bytes</param>
         /// <remarks>throw SQLException if the operation should be cancelled</remarks>
-        protected abstract void OnDiskSpaceIsLow(long stillAvailable);
+        protected abstract void OnDiskSpaceIsLow();
 
         void org.h2.api.DatabaseEventListener.exceptionThrown(java.sql.SQLException e, String sql)
         {

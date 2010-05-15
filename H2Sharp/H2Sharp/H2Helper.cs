@@ -142,7 +142,7 @@ namespace System.Data.H2
         }
         public static Converter ConverterToDotNet(Object resultSample)
         {
-            if (resultSample == null)
+            if (resultSample == null || resultSample is DBNull)
                 return null;
 
             if (resultSample is java.lang.Integer)
@@ -163,7 +163,7 @@ namespace System.Data.H2
             if (resultSample is java.lang.Short)
                 return result => ((java.lang.Short)result).shortValue();
 
-            if (resultSample is java.lang.String)
+            if (resultSample.GetType() == typeof(java.lang.String))
                 return result => result.ToString();
 
             if (resultSample is java.lang.Number)

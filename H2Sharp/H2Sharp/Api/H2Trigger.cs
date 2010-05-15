@@ -56,7 +56,22 @@ namespace System.Data.H2.Api
             H2Connection connection = new H2Connection(conn);
             OnFire(connection, oldRow, newRow);
         }
+		
+		
+		protected abstract void OnClose();
 
+		void org.h2.api.Trigger.close()
+		{
+			OnClose();
+		}
+		
+		protected abstract void OnRemove();
+
+		void org.h2.api.Trigger.remove()
+		{
+			OnRemove();
+		}
+		
         /// <summary>
         /// This method is called for each triggered action.
         /// </summary>
