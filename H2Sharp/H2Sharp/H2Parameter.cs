@@ -170,13 +170,25 @@ namespace System.Data.H2
                 sourceVersion = value;
             }
         }
+        H2Helper.Converter DotNetToJava;
         public override object Value
         {
             get { return value; }
             set
             {
                 this.value = value;
-                this.javaValue = H2Helper.ConvertToJava(value);
+                if (value is DBNull || value == null)
+                    this.javaValue = null;
+                else
+                {
+                    if (DotNetToJava == null)
+                        DotNetToJava = H2Helper.ConverterToJava(value);
+
+                    if (DotNetToJava == null)
+                        throw new NotImplementedException("No conversion of " + value.GetType().Name + " to Java yet !");
+
+                    this.javaValue = DotNetToJava(value);
+                }
             }
         }
 

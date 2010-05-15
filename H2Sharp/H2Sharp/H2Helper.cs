@@ -131,41 +131,83 @@ namespace System.Data.H2
             }
         }
 
-        public static object ConvertToDotNet(object result)
+        public delegate Object Converter(Object o);
+
+        public static Object ConvertToDotNet(Object result)
         {
-            if (result is java.lang.Integer)
-            {
-                result = ((java.lang.Integer)result).intValue();
-            }
-            else if (result is java.lang.Long)
-            {
-                result = ((java.lang.Long)result).longValue();
-            }
-            else if (result is java.lang.Short)
-            {
-                result = ((java.lang.Short)result).shortValue();
-            }
-            else if (result is java.lang.Number)
-            {
-                result = ((java.lang.Number)result).intValue();
-            }
-            return result;
+            if (result == null)
+                return DBNull.Value;
+
+            return ConverterToDotNet(result)(result);
         }
-        public static object ConvertToJava(object result)
+        public static Converter ConverterToDotNet(Object resultSample)
         {
-            if (result is int)
-            {
-                result = new java.lang.Integer((int)result);
-            }
-            else if (result is long)
-            {
-                result = new java.lang.Long((long)result);
-            }
-            else if (result is short)
-            {
-                result = new java.lang.Short((short)result);
-            }
-            return result;
+            if (resultSample == null)
+                return null;
+
+            if (resultSample is java.lang.Integer)
+                return result => ((java.lang.Integer)result).intValue();
+
+            if (resultSample is java.lang.Long)
+                return result => ((java.lang.Long)result).longValue();
+
+            if (resultSample is java.lang.Short)
+                return result => ((java.lang.Short)result).shortValue();
+
+            if (resultSample is java.lang.Character)
+                return result => ((java.lang.Character)result).charValue();
+
+            if (resultSample is java.lang.Byte)
+                return result => ((java.lang.Byte)result).byteValue();
+
+            if (resultSample is java.lang.Short)
+                return result => ((java.lang.Short)result).shortValue();
+
+            if (resultSample is java.lang.String)
+                return result => result.ToString();
+
+            if (resultSample is java.lang.Number)
+                return result => ((java.lang.Number)result).intValue();
+            
+            if (resultSample is java.sql.Date)
+                return result => UTCStart.AddMilliseconds(((java.sql.Date)result).getTime());
+            
+            if (resultSample is java.sql.Timestamp)
+                return result => UTCStart.AddMilliseconds(((java.sql.Timestamp)result).getTime());
+
+            return result => result;
+        }
+        static readonly DateTime UTCStart = new DateTime(1970, 1, 1);
+        public static Converter ConverterToJava(object resultSample)
+        {
+            if (resultSample is int)
+                return result => new java.lang.Integer((int)result);
+
+            if (resultSample is long)
+                return result => new java.lang.Long((long)result);
+
+            if (resultSample is short)
+                return result => new java.lang.Short((short)result);
+
+            if (resultSample is byte)
+                return result => new java.lang.Byte((byte)result);
+
+            if (resultSample is double)
+                return result => new java.lang.Double((double)result);
+
+            if (resultSample is float)
+                return result => new java.lang.Float((float)result);
+
+            if (resultSample is char)
+                return result => new java.lang.Character((char)result);
+
+            if (resultSample is short)
+                return result => new java.lang.Short((short)result);
+
+            if (resultSample is DateTime)
+                return result => new java.sql.Timestamp((long)(((DateTime)resultSample) - UTCStart).TotalMilliseconds);
+
+            return result => result;
         }
 
         public static Type GetType(int typeCode)

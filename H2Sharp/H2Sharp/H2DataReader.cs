@@ -28,6 +28,7 @@
 
 using System.Data.Common;
 using java.sql;
+using System.Collections.Generic;
 
 
 namespace System.Data.H2
@@ -128,8 +129,10 @@ namespace System.Data.H2
         }
         public override DateTime GetDateTime(int ordinal)
         {
-            throw new NotImplementedException();
+
+            return UTCStart.AddMilliseconds(set.getDate(ordinal).getTime());
         }
+        static readonly DateTime UTCStart = new DateTime(1970, 1, 1);
         public override decimal GetDecimal(int ordinal)
         {
             throw new NotImplementedException();
@@ -143,22 +146,45 @@ namespace System.Data.H2
             throw new NotImplementedException();
         }
 
-        
+        Type[] types;
         public override Type GetFieldType(int ordinal)
         {
+            if (types == null)
+                types = new Type[Meta.getColumnCount() + 1];
 
-            object temp = set.getObject(ConvertOrdnal(ordinal));
-            if (temp == null)
+            var type = types[ordinal];
+            if (type == null)
+                types[ordinal] = type = DoGetFieldType(ordinal);
+            return type;
+        }
+        Type DoGetFieldType(int ordinal)
+        {
+            int typeCode = Meta.getColumnType(ConvertOrdnal(ordinal));
+            Type rv = H2Helper.GetType(typeCode);
+            if (rv != null)
             {
-                int typeCode = Meta.getColumnType(ConvertOrdnal(ordinal));
-                Type rv = H2Helper.GetType(typeCode);
-                if (rv != null)
-                {
-                    return rv;
-                }
-                string type = Meta.getColumnTypeName(ConvertOrdnal(ordinal));
-                throw new NotImplementedException(type);
+                return rv;
             }
+            string type = Meta.getColumnTypeName(ConvertOrdnal(ordinal));
+            switch (type)
+            {
+                case "TIMESTAMP":
+                case "DATE":
+                    return typeof(DateTime);
+            }
+            object temp = null;
+            try
+            {
+                temp = set.getObject(ConvertOrdnal(ordinal));
+            }
+            catch (Exception)
+            {
+                //Console.WriteLine(ex);
+                //temp = set.getObject(ConvertOrdnal(ordinal));
+            }
+            if (temp == null)
+                throw new NotImplementedException(type);
+
             Type result = temp.GetType();
             if (result == typeof(java.lang.Integer))
             {
@@ -175,6 +201,18 @@ namespace System.Data.H2
             else if (result == typeof(java.lang.String))
             {
                 result = typeof(String);
+            }
+            else if (result == typeof(java.util.Date))
+            {
+                result = typeof(DateTime);
+            }
+            else if (result == typeof(java.sql.Date))
+            {
+                result = typeof(DateTime);
+            }
+            else if (result == typeof(java.sql.Timestamp))
+            {
+                result = typeof(DateTime);
             }
             return result;
         }
@@ -200,7 +238,9 @@ namespace System.Data.H2
         }
         public override string GetName(int ordinal)
         {
-            return Meta.getColumnName(ConvertOrdnal(ordinal));
+            var i = ConvertOrdnal(ordinal);
+            var s = Meta.getColumnLabel(i);
+            return s == null ? Meta.getColumnName(i) : s;
         }
         public override int GetOrdinal(string name)
         {
@@ -221,11 +261,26 @@ namespace System.Data.H2
         {
             return set.getString(ConvertOrdnal(ordinal));
         }
+
+
+        H2Helper.Converter[] converters;
+
         public override object GetValue(int ordinal)
         {
             object result = set.getObject(ConvertOrdnal(ordinal));
-            result = H2Helper.ConvertToDotNet(result);
-            return result;
+            if (result == null)
+                return DBNull.Value;
+
+            if (converters == null)
+                converters = new H2Helper.Converter[Meta.getColumnCount()];
+
+            H2Helper.Converter converter = converters[ordinal];
+            if (converter == null)
+                converters[ordinal] = converter = H2Helper.ConverterToDotNet(result);
+
+            if (converter == null)
+                throw new NotImplementedException("No conversion of " + result.GetType().Name + " to .NET yet");
+            return converter(result);
         }
         public override int GetValues(object[] values)
         {

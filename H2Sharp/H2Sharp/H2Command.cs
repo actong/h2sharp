@@ -384,7 +384,7 @@ namespace System.Data.H2
         }
         public new H2DataReader ExecuteReader(CommandBehavior behavior)
         {
-            if (behavior != CommandBehavior.Default) { throw new NotSupportedException("Only CommandBehavior Default is supported for now."); }
+            // TODO check this : if (behavior != CommandBehavior.Default) { throw new NotSupportedException("Only CommandBehavior Default is supported for now."); }
             CheckConnection();
             EnsureStatment();
             try
