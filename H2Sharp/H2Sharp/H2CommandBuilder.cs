@@ -6,7 +6,7 @@ using System.Data.H2;
 using System.Text.RegularExpressions;
 using System.Data;
 
-namespace Supplix.Utils.H2
+namespace System.Data.H2
 {
     /// <summary>
 	/// This command builder is still buggy, please only use it to debug it :-)

@@ -255,7 +255,69 @@ namespace System.Data.H2
         }
         public override DataTable GetSchemaTable()
         {
-            throw new NotImplementedException();
+			/*
+			JDBC reference :
+			http://java.sun.com/j2se/1.5.0/docs/api/java/sql/ResultSetMetaData.html
+			
+			ADO.NET reference :
+			http://msdn.microsoft.com/en-us/library/system.data.sqlclient.sqldatareader.getschematable.aspx
+			*/
+			var table = new DataTable();
+			var ColumnName = table.Columns.Add("ColumnName", typeof(String));
+			var ColumnOrdinal = table.Columns.Add("ColumnOrdinal", typeof(Int32));
+			var ColumnSize = table.Columns.Add("ColumnSize", typeof(Int32));
+			var NumericPrecision = table.Columns.Add("NumericPrecision", typeof(Int32));
+			var NumericScale = table.Columns.Add("NumericScale", typeof(Int32));
+			var IsUnique = table.Columns.Add("IsUnique", typeof(bool));
+			var IsKey = table.Columns.Add("IsKey", typeof(bool));
+			var BaseServerName = table.Columns.Add("BaseServerName", typeof(String));
+			var BaseCatalogName = table.Columns.Add("BaseCatalogName", typeof(String));
+			var BaseColumnName = table.Columns.Add("BaseColumnName", typeof(String));
+			var BaseSchemaName = table.Columns.Add("BaseSchemaName", typeof(String));
+			var BaseTableName = table.Columns.Add("BaseTableName", typeof(String));
+			var DataType = table.Columns.Add("DataType", typeof(Type));
+			var AllowDBNull = table.Columns.Add("AllowDBNull", typeof(bool));
+			var ProviderType = table.Columns.Add("ProviderType");
+			var IsAliased = table.Columns.Add("IsAliased", typeof(bool));
+			var IsExpression = table.Columns.Add("IsExpression", typeof(bool));
+			var IsIdentity = table.Columns.Add("IsIdentity", typeof(bool));
+			var IsAutoIncrement = table.Columns.Add("IsAutoIncrement", typeof(bool));
+			var IsRowVersion = table.Columns.Add("IsRowVersion", typeof(bool));
+			var IsHidden = table.Columns.Add("IsHidden", typeof(bool));
+			var IsLong = table.Columns.Add("IsLong", typeof(bool));
+			var IsReadOnly = table.Columns.Add("IsReadOnly", typeof(bool));
+			var ProviderSpecificDataType = table.Columns.Add("ProviderSpecificDataType");
+			var DataTypeName = table.Columns.Add("DataTypeName", typeof(String));
+			//var XmlSchemaCollectionDatabase = table.Columns.Add("XmlSchemaCollectionDatabase");
+			//var XmlSchemaCollectionOwningSchema = table.Columns.Add("XmlSchemaCollectionOwningSchema");
+			//var XmlSchemaCollectionName = table.Columns.Add("XmlSchemaCollectionName");
+			
+			var nCols = meta.getColumnCount();
+			table.MinimumCapacity = nCols;
+			for (int iCol = 1; iCol <= nCols; iCol++) 
+			{
+				// Beware : iCol starts at 1 (JDBC convention)
+				var row = table.NewRow();
+				var name = meta.getColumnName(iCol);	
+				var label = meta.getColumnLabel(iCol);
+				row[ColumnName] = label != null ? label : name;
+				row[ColumnOrdinal] = iCol - 1;
+				row[BaseColumnName] = name;
+				row[BaseSchemaName] = meta.getSchemaName(iCol);
+				row[BaseTableName] = meta.getTableName(iCol);
+				row[	ColumnSize] = meta.getColumnDisplaySize(iCol);
+				row[IsReadOnly] = meta.isReadOnly(iCol);
+				row[DataTypeName] = meta.getColumnTypeName(iCol); // TODO check this !
+				row[NumericPrecision] = meta.getPrecision(iCol);
+				row[NumericScale] = meta.getScale(iCol);
+				var jdbcType = meta.getColumnType(iCol);
+				var type = H2Helper.GetType(jdbcType);
+				row[DataType] = type;
+				row[AllowDBNull] = meta.isNullable(iCol);
+				table.Rows.Add(row);
+			}
+			return table;
+            //throw new NotImplementedException();
         }
         public override string GetString(int ordinal)
         {
