@@ -26,72 +26,65 @@
  */
 #endregion
 using java.sql;
-
+using System.Collections.Generic;
 namespace System.Data.H2
 {
     static class H2Helper
     {
-        public static int GetTypeCode(DbType dbType)
-        {
-            switch (dbType)
-            {
-                case DbType.AnsiString:
-                    return Types.VARCHAR;
-                case DbType.AnsiStringFixedLength:
-                    return Types.CHAR;
-                case DbType.Binary:
-                    return Types.BINARY;
-                case DbType.Boolean:
-                    return Types.BOOLEAN;
-                case DbType.Byte:
-                    return Types.TINYINT;
-                case DbType.Currency:
-                    throw new NotSupportedException();
-                case DbType.Date:
-                    return Types.DATE;
-                case DbType.DateTime:
-                    return Types.TIMESTAMP;
-                case DbType.DateTime2:
-                    return Types.TIMESTAMP;
-                case DbType.DateTimeOffset:
-                    return Types.TIMESTAMP;
-                case DbType.Decimal:
-                    return Types.DECIMAL;
-                case DbType.Double:
-                    return Types.DOUBLE;
-                case DbType.Guid:
-                    throw new NotSupportedException();
-                case DbType.Int16:
-                    return Types.SMALLINT;
-                case DbType.Int32:
-                    return Types.INTEGER;
-                case DbType.Int64:
-                    return Types.BIGINT;
-                case DbType.Object:
-                    return Types.JAVA_OBJECT;
-                case DbType.SByte:
-                    return Types.TINYINT;
-                case DbType.Single:
-                    return Types.FLOAT;
-                case DbType.String:
-                    return Types.NVARCHAR;
-                case DbType.StringFixedLength:
-                    return Types.NCHAR;
-                case DbType.Time:
-                    return Types.TIME;
-                case DbType.UInt16:
-                    throw new NotSupportedException();
-                case DbType.UInt32:
-                    throw new NotSupportedException();
-                case DbType.UInt64:
-                    throw new NotSupportedException();
-                case DbType.VarNumeric:
-                    return Types.ARRAY;
-                case DbType.Xml:
-                    throw new NotSupportedException();
-                default :
-                    throw new ArgumentOutOfRangeException("dbType");
-            }
+		static Dictionary<int, DbType> jdbc2dbtype;
+		static Dictionary<DbType, int> dbtype2jdbc;
+		static void map(int jdbcType, DbType dbType) {
+			try {
+				jdbc2dbtype[jdbcType] = dbType;
+				dbtype2jdbc[dbType] = jdbcType;
+			} catch (Exception) {}
+		}
+		static H2Helper() {
+			jdbc2dbtype = new Dictionary<int, DbType>();
+			dbtype2jdbc = new Dictionary<DbType, int>();
+			map(Types.VARCHAR, DbType.AnsiString);
+			map(Types.CHAR, DbType.AnsiStringFixedLength);
+			map(Types.BINARY, DbType.Binary);
+			map(Types.BOOLEAN, DbType.Boolean);
+			map(Types.TINYINT, DbType.Byte);
+			map(Types.DATE, DbType.Date);
+			map(Types.TIMESTAMP, DbType.DateTime);
+			map(Types.TIMESTAMP, DbType.DateTime2);
+			map(Types.TIMESTAMP, DbType.DateTimeOffset);
+			map(Types.DECIMAL, DbType.Decimal);
+			map(Types.DOUBLE, DbType.Double);
+			map(Types.SMALLINT, DbType.Int16);
+			map(Types.INTEGER, DbType.Int32);
+			map(Types.BIGINT, DbType.Int64);
+			map(Types.JAVA_OBJECT, DbType.Object);
+			map(Types.TINYINT, DbType.SByte);
+			map(Types.FLOAT, DbType.Single);
+			map(Types.NVARCHAR, DbType.String);
+			map(Types.NCHAR, DbType.StringFixedLength);
+			map(Types.TIME, DbType.Time);
+			map(Types.ARRAY, DbType.VarNumeric);
+			//DbType.Guid:
+			//DbType.UInt16:
+			//DbType.UInt32:
+			//DbType.UInt64:
+			//DbType.Currency:
+		}
+		public static int GetTypeCode(DbType dbType)
+		{
+			int ret;
+			if (!dbtype2jdbc.TryGetValue(dbType, out ret))
+				throw new NotSupportedException("Cannot convert the ADO.NET " + Enum.GetName(typeof(DbType), dbType) + " " + typeof(DbType).Name + " to a JDBC type");
+			
+			return ret;
+        }
+        
+        public static DbType GetDbType(int typeCode)
+		{
+			DbType ret;
+			if (!jdbc2dbtype.TryGetValue(typeCode, out ret))
+				throw new NotSupportedException("Cannot convert JDBC type " + typeCode + " to an ADO.NET " + typeof(DbType).Name);
+			
+			return ret;
         }
 
         public static IsolationLevel GetAdoTransactionLevel(int level)

@@ -389,10 +389,19 @@ namespace System.Data.H2
             EnsureStatment();
             try
             {
-                return new H2DataReader(statement.executeQuery());
+				var low = CommandText.ToLower().Trim();
+				var iSemi = low.IndexOf(';');
+				if ((low.StartsWith("insert") || low.StartsWith("update")) && (iSemi < 0 || iSemi == low.Length - 1)) 
+				{
+					statement.executeUpdate();
+					return null;
+				}
+				else
+                		return new H2DataReader(connection, statement.executeQuery());
             }
             catch(org.h2.jdbc.JdbcSQLException ex)
             {
+				ex.printStackTrace();
                 throw new H2Exception(ex);
             }
         }

@@ -31,11 +31,13 @@ namespace System.Data.H2
                     tableName = mmat.Groups[1].Value;
             }
 
-            var columnTypes = connection.GetColumnsDataType(tableName);
+			var columnTypeCodes = connection.GetColumnTypeCodes(tableName);
 
             IList<String> cols = mat.Groups[1].Value.Split(',');
             if (cols.Count == 1 && cols[0].Trim().Equals("*"))
-                cols = columnTypes.Keys.ToList();
+                cols = columnTypeCodes.Keys.ToList();
+			
+			cols = cols.Select(c => c.Trim()).ToList();
 
             var updateCommand = new H2Command(connection);
             var insertCommand = new H2Command(connection);
@@ -53,31 +55,31 @@ namespace System.Data.H2
                 String columnName;
                 if (colasmat.Success)
                 {
-                    alias = colasmat.Groups[2].Value;
-                    columnName = colasmat.Groups[1].Value;
-                    aliases[columnName] = alias;
+                    alias = colasmat.Groups[2].Value.ToUpper().Trim();
+                    columnName = colasmat.Groups[1].Value.ToUpper().Trim();
                 }
                 else
                 {
-                    columnName = alias = col;
+                    alias = columnName = col.ToUpper().Trim();
                 }
-
+                aliases[columnName] = alias;
                 var paramName = (nextParam++).ToString();
 
                 updateSets.Add("\"" + columnName + "\" = ?");//:" + paramName);
 
-                updateCommand.Parameters.Add(new H2Parameter(paramName, columnTypes[columnName])
+				var typeCode = columnTypeCodes[columnName];
+				var dbType = H2Helper.GetDbType(typeCode);
+                updateCommand.Parameters.Add(new H2Parameter(paramName, dbType)
                 {
                     SourceColumn = alias,
-                    DbType = columnTypes[columnName],
+                    DbType = dbType,
                     Direction = ParameterDirection.Input,
                     SourceVersion = DataRowVersion.Current
                 });
 
             }
-            var pksList = connection.ReadString("SELECT column_list FROM INFORMATION_SCHEMA.CONSTRAINTS where lower(table_name) = '" + tableName.ToLower() + "' and constraint_type = 'PRIMARY KEY'");
-            var pks = pksList == null ? cols : pksList.Split().Select(s => s.Trim());
-            foreach (var pk in pks)
+			var pks = connection.GetPrimaryKeysColumns(tableName);
+            foreach (var pk in pks.Select(c => c.ToUpper()))
             {
                 var columnName = pk;
                 var paramName = (nextParam++).ToString();
@@ -86,26 +88,33 @@ namespace System.Data.H2
                 String alias;
                 if (!aliases.TryGetValue(columnName, out alias))
                     alias = columnName;
-                updateCommand.Parameters.Add(new H2Parameter(paramName, columnTypes[columnName])
+                
+				var typeCode = columnTypeCodes[columnName];
+				var dbType = H2Helper.GetDbType(typeCode);
+                updateCommand.Parameters.Add(new H2Parameter(paramName, dbType)
                 {
                     SourceColumn = alias,
-                    DbType = columnTypes[columnName],
+                    DbType = dbType,
                     Direction = ParameterDirection.Input,
                     SourceVersion = DataRowVersion.Original
                 });
             }
             var insertValues = new List<String>();
             nextParam = 0;
-            foreach (var columnName in cols)
+            foreach (var columnName in cols.Select(c => c.ToUpper()))
             {
                 var paramName = (nextParam++).ToString();
                 insertValues.Add("?");//":" + paramName);
                 String alias;
                 if (!aliases.TryGetValue(columnName, out alias))
                     alias = columnName;
-                insertCommand.Parameters.Add(new H2Parameter(paramName, columnTypes[columnName])
+                
+				var typeCode = columnTypeCodes[columnName];
+				var dbType = H2Helper.GetDbType(typeCode);
+                insertCommand.Parameters.Add(new H2Parameter(paramName, dbType)
                 {
                     SourceColumn = alias,
+					DbType = dbType,
                     Direction = ParameterDirection.Input,
                     SourceVersion = DataRowVersion.Original
                 });

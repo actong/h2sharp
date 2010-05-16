@@ -43,12 +43,14 @@ namespace System.Data.H2
             return ordinal+1;
         }
 
+		private H2Connection connection;
         private ResultSet set;
         private ResultSetMetaData meta;
 
-        internal H2DataReader(ResultSet set)
+        internal H2DataReader(H2Connection connection, ResultSet set)
         {
             this.set = set;
+			this.connection = connection;
         }
 
 
@@ -292,6 +294,10 @@ namespace System.Data.H2
 			//var XmlSchemaCollectionOwningSchema = table.Columns.Add("XmlSchemaCollectionOwningSchema");
 			//var XmlSchemaCollectionName = table.Columns.Add("XmlSchemaCollectionName");
 			
+			//var dbMeta = connection.connection.getMetaData();
+			var tablesPksAndUniques = new Dictionary<String, KeyValuePair<HashSet<String>, HashSet<String>>>();
+			var meta = Meta;
+			
 			var nCols = meta.getColumnCount();
 			table.MinimumCapacity = nCols;
 			for (int iCol = 1; iCol <= nCols; iCol++) 
@@ -300,13 +306,25 @@ namespace System.Data.H2
 				var row = table.NewRow();
 				var name = meta.getColumnName(iCol);	
 				var label = meta.getColumnLabel(iCol);
+				var tableName = meta.getTableName(iCol);
+				
+				KeyValuePair<HashSet<String>, HashSet<String>> pksAndUniques;
+				if (!tablesPksAndUniques.TryGetValue(tableName, out pksAndUniques)) {
+					pksAndUniques = new KeyValuePair<HashSet<string>, HashSet<string>>(
+						connection.GetPrimaryKeysColumns(tableName),
+						connection.GetUniqueColumns(tableName)
+					);
+				}
+				
 				row[ColumnName] = label != null ? label : name;
 				row[ColumnOrdinal] = iCol - 1;
 				row[BaseColumnName] = name;
 				row[BaseSchemaName] = meta.getSchemaName(iCol);
-				row[BaseTableName] = meta.getTableName(iCol);
+				row[BaseTableName] = tableName;
 				row[	ColumnSize] = meta.getColumnDisplaySize(iCol);
 				row[IsReadOnly] = meta.isReadOnly(iCol);
+				row[IsKey] = pksAndUniques.Key.Contains(name);
+				row[IsUnique] = pksAndUniques.Value.Contains(name);
 				row[DataTypeName] = meta.getColumnTypeName(iCol); // TODO check this !
 				row[NumericPrecision] = meta.getPrecision(iCol);
 				row[NumericScale] = meta.getScale(iCol);
@@ -363,4 +381,67 @@ namespace System.Data.H2
         }
 
     }
+	static class DatabaseMetaDataExtensions {
+		
+		public static Dictionary<String, int> GetColumnTypeCodes(this H2Connection connection, String tableName) {
+			// Reference : http://java.sun.com/javase/6/docs/api/java/sql/DatabaseMetaData.html#getPrimaryKeys(java.lang.String, java.lang.String, java.lang.String)
+			/*try {
+				var dbMeta = connection.connection.getMetaData();
+				var res = dbMeta != null ? dbMeta.getColumns(null, null, tableName, null) : null;
+				if (res != null) {
+					var ret = new Dictionary<String, int>();
+					while (res.next()) {
+						var columnName = res.getString(4);
+						var colType = res.getInt(5);
+						ret[columnName] = colType;
+					}
+					return ret;
+				}
+			} catch (Exception ex) { 
+				Console.WriteLine(ex);
+			}*/
+			return connection.ReadMap<int>("select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where upper(table_name) = '" + tableName.ToUpper() + "'");
+		}		
+		public static HashSet<String> GetPrimaryKeysColumns(this H2Connection connection, String tableName) {
+			// Reference : http://java.sun.com/javase/6/docs/api/java/sql/DatabaseMetaData.html#getPrimaryKeys(java.lang.String, java.lang.String, java.lang.String)
+			/*try {
+				var dbMeta = connection.connection.getMetaData();
+				var res = dbMeta != null ? dbMeta.getPrimaryKeys(null, null, tableName) : null;
+				if (res != null) {
+					var ret = new HashSet<String>();
+					while (res.next()) {
+						var columnName = res.getString(4);
+						ret.Add(columnName);
+					}
+					return ret;
+				}
+			} catch (Exception ex) { 
+				Console.WriteLine(ex);
+			}*/
+			var ret = new HashSet<String>();
+			foreach (var list in connection.ReadStrings("select column_list from INFORMATION_SCHEMA.CONSTRAINTS where constraint_type = 'PRIMARY KEY' and upper(table_name) = '" + tableName.ToUpper() + "' ")) {
+				foreach (var col in list.Split(','))
+					ret.Add(col.Trim());
+			}
+			return ret;
+		}
+		public static HashSet<String> GetUniqueColumns(this H2Connection connection, String tableName) {
+			// Reference : http://java.sun.com/javase/6/docs/api/java/sql/DatabaseMetaData.html#getIndexInfo(java.lang.String, java.lang.String, java.lang.String, boolean, boolean)
+			/*try {
+				var dbMeta = connection.connection.getMetaData();
+				var res = dbMeta != null ? dbMeta.getIndexInfo(null, null, tableName, true, false) : null;
+				if (res != null) {
+					var ret = new HashSet<String>();
+					while (res.next()) {
+						var columnName = res.getString(4);
+						ret.Add(columnName);
+					}
+					return ret;
+				}
+			} catch (Exception ex) { 
+				Console.WriteLine(ex);
+			}*/
+			return new HashSet<String>(connection.ReadStrings("select column_list from INFORMATION_SCHEMA.CONSTRAINTS where constraint_type = 'UNIQUE' and upper(table_name) = '" + tableName.ToUpper() + "'"));
+		}	
+	}
 }
