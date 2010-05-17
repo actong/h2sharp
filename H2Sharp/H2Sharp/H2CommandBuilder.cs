@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Common;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,22 +12,32 @@ namespace System.Data.H2
     /// <summary>
 	/// This command builder is still buggy, please only use it to debug it :-)
 	/// </summary>
-	public class H2CommandBuilder
+	public class H2CommandBuilder : DbCommandBuilder
     {
-        H2Connection connection;
+        //H2Connection connection;
+        static readonly Regex selectRegex = new Regex("^select\\s+(.*)\\s+from\\s+([^\\s]+?)(?:\\s+where\\s+(?:.*))?(?:\\s+order\\s+by\\s+(?:.*))?$", RegexOptions.Multiline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        static readonly Regex columnRegex = new Regex("\"(.*)\"", RegexOptions.Compiled | RegexOptions.Multiline);
+        
         public H2CommandBuilder(H2DataAdapter adapter)
         {
-            connection = adapter.SelectCommand.Connection;
+            DataAdapter = adapter;
+            //Letting ADO.NET do its job does not appear to work (yet) :
+            if (false)
+            {
+                adapter.InsertCommand = (H2Command)GetInsertCommand();
+                adapter.UpdateCommand = (H2Command)GetUpdateCommand();
+                return;
+            }
+
+            var connection = adapter.SelectCommand.Connection;
             var select = adapter.SelectCommand.CommandText.ToLower();
-            var rx = new Regex("select (.*) from (.*)(?: order by (?:.*))?");
-            var mat = rx.Match(select);
+            var mat = selectRegex.Match(select);
             if (!mat.Success)
                 throw new Exception("Select command not recognized : '" + select + "'");
 
             var tableName = mat.Groups[2].Value;
             {
-                var rrx = new Regex("\"(.*)\"");
-                var mmat = rrx.Match(tableName);
+                var mmat = columnRegex.Match(tableName);
                 if (mmat.Success)
                     tableName = mmat.Groups[1].Value;
             }
@@ -123,43 +134,36 @@ namespace System.Data.H2
             adapter.UpdateCommand = updateCommand;
             insertCommand.CommandText = "insert into " + tableName + "(" + cols.Commas() + ") values (" + insertValues.Commas() + ")";
             adapter.InsertCommand = insertCommand;
+            
+        }
+
+        protected override void ApplyParameterInfo(DbParameter parameter, DataRow row, StatementType statementType, bool whereClause)
+        {
+            parameter.DbType = (DbType)row["DbType"];
+        }
+
+        protected override string GetParameterName(string parameterName)
+        {
+            return parameterName;
+        }
+
+        protected override string GetParameterName(int parameterOrdinal)
+        {
+            return "param" + parameterOrdinal;
+        }
+
+        protected override string GetParameterPlaceholder(int parameterOrdinal)
+        {
+            return "?";
+        }
+
+        protected override void SetRowUpdatingHandler(DbDataAdapter adapter)
+        {
+            //throw new NotImplementedException();
         }
     }
 	public static class ConnectionExtensions
     {
-        public static Dictionary<String, DbType> GetColumnsDataType(this H2Connection connection, String tableName)
-        {
-            var columnNamesAndValues = connection.ReadMap<String>("select column_name, type_name from INFORMATION_SCHEMA.columns where lower(table_name) = '" + tableName.ToLower() + "'");
-            var ret = new Dictionary<String, DbType>();
-            foreach (var kv in columnNamesAndValues)
-            {
-                DbType type;
-                switch (kv.Value)
-                {
-                    case "VARCHAR":
-                    case "VARCHAR2":
-                        type = DbType.StringFixedLength;
-                        break;
-                    case "INT":
-                    case "INTEGER":
-                        type = DbType.Int32;
-                        break;
-                    case "DECIMAL":
-                        type = DbType.Decimal;
-                        break;
-                    case "BIGINT":
-                        type = DbType.Int64;
-                        break;
-                    case "DOUBLE":
-                        type = DbType.Double;
-                        break;
-                    default:
-                        throw new Exception("Unknown type '" + kv.Value + "'");
-                }
-                ret[kv.Key] = type;
-            }
-            return ret;
-        }
         public static List<String> ReadStrings(this H2Connection connection, String query)
         {
             var ret = new List<String>();

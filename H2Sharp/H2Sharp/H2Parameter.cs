@@ -34,27 +34,22 @@ namespace System.Data.H2
 
     public sealed class H2Parameter : DbParameter
     {
-        ParameterDirection direction = ParameterDirection.Input;
-        bool isNullable;
+        ParameterDirection _direction = ParameterDirection.Input;
         bool isTypeSet;
-        string parameterName;
-        int size;
-        object value;
+        object _value;
         object javaValue;
-        DbType dbType = DbType.Object;
+        DbType _dbType = DbType.Object;
         int javaType;
-        string sourceColumn;
-        bool sourceColumnNullMapping;
-        DataRowVersion sourceVersion = DataRowVersion.Current;
+        DataRowVersion _sourceVersion = DataRowVersion.Current;
 
         public H2Parameter() { }
         public H2Parameter(string parameterName)
         {
-            this.parameterName = parameterName;
+            this.ParameterName = parameterName;
         }
         public H2Parameter(string parameterName, object value)
         {
-            this.parameterName = parameterName;
+            this.ParameterName = parameterName;
             this.Value = value;
         }
         public H2Parameter(object value)
@@ -64,21 +59,21 @@ namespace System.Data.H2
 
         public H2Parameter(string name, DbType dataType)
         {
-            this.parameterName = name;
-            this.DbType = dbType;
+            this.ParameterName = name;
+            this.DbType = dataType;
         }
         public H2Parameter(string name, DbType dataType, int size)
         {
-            this.parameterName = name;
-            this.DbType = dbType;
-            this.size = size;
+            this.ParameterName = name;
+            this.DbType = dataType;
+            this.Size = size;
         }
         public H2Parameter(string name, DbType dataType, int size, string sourceColumn)
         {
-            this.parameterName = name;
-            this.DbType = dbType;
-            this.size = size;
-            this.sourceColumn = sourceColumn;
+            this.ParameterName = name;
+            this.DbType = dataType;
+            this.Size = size;
+            this.SourceColumn = sourceColumn;
         }
         public H2Parameter(
                      string name,
@@ -92,100 +87,60 @@ namespace System.Data.H2
                      DataRowVersion sourceVersion,
                      object value)
         {
-            this.parameterName = name;
+            this.ParameterName = name;
             this.DbType = dbType;
-            this.size = size;
-            this.direction = direction;
-            this.isNullable = isNullable;
-            this.sourceColumn = sourceColumn;
-            this.sourceVersion = sourceVersion;
+            this.Size = size;
+            this.Direction = direction;
+            this.IsNullable = isNullable;
+            this.SourceColumn = sourceColumn;
+            this.SourceVersion = sourceVersion;
             this.Value = value;
         }
 
 
         public override DbType DbType
         {
-            get { return dbType; }
+            get { return _dbType; }
             set
             {
                 isTypeSet = true;
-                dbType = value;
+                _dbType = value;
                 javaType = H2Helper.GetTypeCode(value);
             }
         }
-        public override ParameterDirection Direction
+        
+        public override ParameterDirection Direction 
         {
-            get { return direction; }
+            get { return _direction; }
             set
             {
                 if (value != ParameterDirection.Input) { throw new NotSupportedException(); }
-                direction = value;
+                _direction = value;
             }
         }
-        public override bool IsNullable
-        {
-            get { return isNullable; }
-            set { isNullable = value; }
+        public override bool IsNullable { get; set; }
+        public override string ParameterName { get; set; }
+        public override int Size { get; set; }
+        public override string SourceColumn { get; set; }
+        public override bool SourceColumnNullMapping { get; set; }
+        public override DataRowVersion SourceVersion {
+            get { return _sourceVersion; }
+            set { _sourceVersion = value; }
         }
-        public override string ParameterName
-        {
-            get { return parameterName; }
-            set { this.parameterName = value; }
-        }
-        public override int Size
-        {
-            get { return size; }
-            set { size = value; }
-        }
-        public override string SourceColumn
-        {
-            get
-            {
-                return sourceColumn;
-            }
-            set
-            {
-                sourceColumn = value;
-            }
-        }
-        public override bool SourceColumnNullMapping
-        {
-            get
-            {
-                return sourceColumnNullMapping;
-            }
-            set
-            {
-                sourceColumnNullMapping = value;
-            }
-        }
-        public override DataRowVersion SourceVersion
-        {
-            get
-            {
-                return sourceVersion;
-            }
-            set
-            {
-                sourceVersion = value;
-            }
-        }
+
         H2Helper.Converter DotNetToJava;
         public override object Value
         {
-            get { return value; }
+            get { return _value; }
             set
             {
-                this.value = value;
+                this._value = value;
                 if (value is DBNull || value == null)
                     this.javaValue = null;
                 else
                 {
                     if (DotNetToJava == null)
-                        DotNetToJava = H2Helper.ConverterToJava(value);
-
-                    if (DotNetToJava == null)
-                        throw new NotImplementedException("No conversion of " + value.GetType().Name + " to Java yet !");
+                        DotNetToJava = H2Helper.ConverterToJava(DbType);
 
                     this.javaValue = DotNetToJava(value);
                 }
@@ -194,7 +149,7 @@ namespace System.Data.H2
 
         public override void ResetDbType()
         {
-            dbType = DbType.Object;
+            _dbType = DbType.Object;
             isTypeSet = false;
         }
         internal void SetStatement(int ordnal, PreparedStatement statement)

@@ -290,6 +290,7 @@ namespace System.Data.H2
 			var IsReadOnly = table.Columns.Add("IsReadOnly", typeof(bool));
 			var ProviderSpecificDataType = table.Columns.Add("ProviderSpecificDataType");
 			var DataTypeName = table.Columns.Add("DataTypeName", typeof(String));
+            var DbType = table.Columns.Add("DbType", typeof(DbType)); // not standard !!!
 			//var XmlSchemaCollectionDatabase = table.Columns.Add("XmlSchemaCollectionDatabase");
 			//var XmlSchemaCollectionOwningSchema = table.Columns.Add("XmlSchemaCollectionOwningSchema");
 			//var XmlSchemaCollectionName = table.Columns.Add("XmlSchemaCollectionName");
@@ -330,7 +331,9 @@ namespace System.Data.H2
 				row[NumericScale] = meta.getScale(iCol);
 				var jdbcType = meta.getColumnType(iCol);
 				var type = H2Helper.GetType(jdbcType);
-				row[DataType] = type;
+                var dbType = H2Helper.GetDbType(jdbcType);
+                row[DataType] = type;
+                row[DbType] = dbType;
 				row[AllowDBNull] = meta.isNullable(iCol);
 				table.Rows.Add(row);
 			}
@@ -347,7 +350,8 @@ namespace System.Data.H2
 
         public override object GetValue(int ordinal)
         {
-            object result = set.getObject(ConvertOrdnal(ordinal));
+            var convOrd = ConvertOrdnal(ordinal);
+            object result = set.getObject(convOrd);
             if (result == null)
                 return DBNull.Value;
 
@@ -356,10 +360,8 @@ namespace System.Data.H2
 
             H2Helper.Converter converter = converters[ordinal];
             if (converter == null)
-                converters[ordinal] = converter = H2Helper.ConverterToDotNet(result);
+                converters[ordinal] = converter = H2Helper.ConverterToCLR(Meta.getColumnType(convOrd));
 
-            if (converter == null)
-                throw new NotImplementedException("No conversion of " + result.GetType().Name + " to .NET yet");
             return converter(result);
         }
         public override int GetValues(object[] values)

@@ -32,41 +32,111 @@ namespace System.Data.H2
     static class H2Helper
     {
 		static Dictionary<int, DbType> jdbc2dbtype;
-		static Dictionary<DbType, int> dbtype2jdbc;
-		static void map(int jdbcType, DbType dbType) {
+        static Dictionary<DbType, int> dbtype2jdbc;
+        static Dictionary<DbType, Converter> converters2java;
+        static Dictionary<int, Converter> converters2clr;
+		static void map(int jdbcType, DbType dbType, Converter converter2java, Converter converter2clr) {
 			try {
-				jdbc2dbtype[jdbcType] = dbType;
-				dbtype2jdbc[dbType] = jdbcType;
-			} catch (Exception) {}
+				if (!jdbc2dbtype.ContainsKey(jdbcType))
+					jdbc2dbtype[jdbcType] = dbType;
+				
+				if (!dbtype2jdbc.ContainsKey(dbType))
+					dbtype2jdbc[dbType] = jdbcType;
+
+                if (!converters2java.ContainsKey(dbType))
+                    converters2java[dbType] = converter2java;
+
+                if (!converters2clr.ContainsKey(jdbcType))
+                    converters2clr[jdbcType] = converter2clr;
+			} 
+			catch (Exception) {}
 		}
 		static H2Helper() {
 			jdbc2dbtype = new Dictionary<int, DbType>();
 			dbtype2jdbc = new Dictionary<DbType, int>();
-			map(Types.VARCHAR, DbType.AnsiString);
-			map(Types.CHAR, DbType.AnsiStringFixedLength);
-			map(Types.BINARY, DbType.Binary);
-			map(Types.BOOLEAN, DbType.Boolean);
-			map(Types.TINYINT, DbType.Byte);
-			map(Types.DATE, DbType.Date);
-			map(Types.TIMESTAMP, DbType.DateTime);
-			map(Types.TIMESTAMP, DbType.DateTime2);
-			map(Types.TIMESTAMP, DbType.DateTimeOffset);
-			map(Types.DECIMAL, DbType.Decimal);
-			map(Types.DOUBLE, DbType.Double);
-			map(Types.SMALLINT, DbType.Int16);
-			map(Types.INTEGER, DbType.Int32);
-			map(Types.BIGINT, DbType.Int64);
-			map(Types.JAVA_OBJECT, DbType.Object);
-			map(Types.TINYINT, DbType.SByte);
-			map(Types.FLOAT, DbType.Single);
-			map(Types.NVARCHAR, DbType.String);
-			map(Types.NCHAR, DbType.StringFixedLength);
-			map(Types.TIME, DbType.Time);
-			map(Types.ARRAY, DbType.VarNumeric);
+            converters2java = new Dictionary<DbType, Converter>();
+            converters2clr = new Dictionary<int, Converter>();
+
+            Converter id = x => x;
+			map(Types.VARCHAR, DbType.AnsiString, id, id);
+            map(Types.CHAR, DbType.AnsiStringFixedLength, id, id);
+            map(Types.LONGVARBINARY, DbType.Binary, //byte[], 
+                id, id);
+            map(Types.BINARY, DbType.Binary, id, id);
+            map(Types.BOOLEAN, DbType.Boolean,
+                x => new java.lang.Boolean((bool)x),
+                x => ((java.lang.Boolean)x).booleanValue()
+            );
+            map(Types.TINYINT, DbType.Byte,
+                x => new java.lang.Byte((byte)x),
+                x => ((java.lang.Byte)x).byteValue()
+            );
+            map(Types.DATE, DbType.Date,
+                x => new java.sql.Date((long)(((DateTime)x) - UTCStart).TotalMilliseconds),
+                x => UTCStart.AddMilliseconds(((java.sql.Date)x).getTime())
+            );
+            map(Types.TIMESTAMP, DbType.DateTime,
+                x => new java.sql.Timestamp((long)(((DateTime)x) - UTCStart).TotalMilliseconds),
+                x => UTCStart.AddMilliseconds(((java.sql.Date)x).getTime())
+            );
+            map(Types.TIMESTAMP, DbType.DateTime2,
+                x => new java.sql.Timestamp((long)(((DateTime)x) - UTCStart).TotalMilliseconds),
+                x => UTCStart.AddMilliseconds(((java.sql.Date)x).getTime())
+            );
+            map(Types.TIMESTAMP, DbType.DateTimeOffset,
+                x => new java.sql.Timestamp((long)(((DateTimeOffset)x) - UTCStart).TotalMilliseconds),
+                x => (DateTimeOffset)UTCStart.AddMilliseconds(((java.sql.Date)x).getTime())
+            );
+            map(Types.DECIMAL, DbType.Decimal,
+                //TODO: test me !
+                x => new java.math.BigDecimal(((decimal)x).ToString()),
+                x => decimal.Parse(((java.math.BigDecimal)x).toString())
+            );
+            map(Types.DOUBLE, DbType.Double,
+                x => new java.lang.Double((double)x),
+                x => ((java.lang.Double)x).doubleValue()
+            );
+            map(Types.SMALLINT, DbType.Int16,
+                x => new java.lang.Short((short)x),
+                x => ((java.lang.Short)x).shortValue()
+            );
+            map(Types.INTEGER, DbType.Int32,
+                x => new java.lang.Integer((int)x),
+                x => ((java.lang.Integer)x).intValue()
+            );
+            map(Types.BIGINT, DbType.Int64,
+                x => new java.lang.Long((long)x),
+                x => ((java.lang.Long)x).longValue()
+            );
+            map(Types.SMALLINT, DbType.UInt16,
+                x => new java.lang.Short((short)(ushort)x),
+                x => ((java.lang.Short)x).shortValue()
+            );
+            map(Types.INTEGER, DbType.UInt32,
+                x => new java.lang.Integer((int)(uint)x),
+                x => ((java.lang.Integer)x).intValue()
+            );
+            map(Types.BIGINT, DbType.UInt64,
+                x => new java.lang.Long((long)(ulong)x),
+                x => ((java.lang.Long)x).longValue()
+            );
+            map(Types.JAVA_OBJECT, DbType.Object, id, id);
+            map(Types.TINYINT, DbType.SByte,
+                x => new java.lang.Byte((byte)x),
+                x => ((java.lang.Byte)x).byteValue()
+            );
+            map(Types.FLOAT, DbType.Single,
+                x => new java.lang.Float((float)x),
+                x => ((java.lang.Float)x).floatValue()
+            );
+            map(Types.NVARCHAR, DbType.String, id, id);
+            map(Types.NCHAR, DbType.StringFixedLength, id, id);
+            map(Types.TIME, DbType.Time,
+                x => new java.sql.Timestamp((long)(((DateTime)x) - UTCStart).TotalMilliseconds),
+                x => UTCStart.AddMilliseconds(((java.sql.Date)x).getTime())
+            );
+            map(Types.ARRAY, DbType.VarNumeric, id, id);
 			//DbType.Guid:
-			//DbType.UInt16:
-			//DbType.UInt32:
-			//DbType.UInt64:
 			//DbType.Currency:
 		}
 		public static int GetTypeCode(DbType dbType)
@@ -87,6 +157,22 @@ namespace System.Data.H2
 			return ret;
         }
 
+        public static Converter ConverterToJava(DbType dbType)
+        {
+            Converter ret;
+            if (!converters2java.TryGetValue(dbType, out ret))
+                throw new NotSupportedException("Cannot find a converter from the ADO.NET " + Enum.GetName(typeof(DbType), dbType) + " " + typeof(DbType).Name + " to a JDBC type");
+
+            return ret;
+        }
+        public static Converter ConverterToCLR(int typeCode)
+        {
+            Converter ret;
+            if (!converters2clr.TryGetValue(typeCode, out ret))
+                throw new NotSupportedException("Cannot find a converter the JDBC type " + typeCode + " to an ADO.NET " + typeof(DbType).Name);
+
+            return ret;
+        }
         public static IsolationLevel GetAdoTransactionLevel(int level)
         {
             switch (level)
@@ -125,7 +211,7 @@ namespace System.Data.H2
         }
 
         public delegate Object Converter(Object o);
-
+        /*
         public static Object ConvertToDotNet(Object result)
         {
             if (result == null)
@@ -169,8 +255,9 @@ namespace System.Data.H2
                 return result => UTCStart.AddMilliseconds(((java.sql.Timestamp)result).getTime());
 
             return result => result;
-        }
+        }*/
         static readonly DateTime UTCStart = new DateTime(1970, 1, 1);
+        /*
         public static Converter ConverterToJava(object resultSample)
         {
             if (resultSample is int)
@@ -201,8 +288,9 @@ namespace System.Data.H2
                 return result => new java.sql.Timestamp((long)(((DateTime)resultSample) - UTCStart).TotalMilliseconds);
 
             return result => result;
-        }
+        }*/
 
+        // TODO check this is complete
         public static Type GetType(int typeCode)
         {
             switch (typeCode)

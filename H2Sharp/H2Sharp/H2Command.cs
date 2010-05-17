@@ -138,7 +138,8 @@ namespace System.Data.H2
             }
             set
             {
-                if (value == null) { throw new ArgumentNullException("value"); }
+                if (value == null)
+                    return;// { throw new ArgumentNullException("value"); }
                 this.connection = value.Connection;
             }
         }
@@ -446,7 +447,10 @@ namespace System.Data.H2
                     if (set.next())
                     {
                         result = set.getObject(1);
-                        result = H2Helper.ConvertToDotNet(result);
+                        if (result == null)
+                            result = DBNull.Value;
+                        else
+                            result = H2Helper.ConverterToCLR(set.getMetaData().getColumnType(1))(result);
                     }
                 }
                 finally
