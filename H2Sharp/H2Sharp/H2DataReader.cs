@@ -162,61 +162,7 @@ namespace System.Data.H2
         Type DoGetFieldType(int ordinal)
         {
             int typeCode = Meta.getColumnType(ConvertOrdnal(ordinal));
-            Type rv = H2Helper.GetType(typeCode);
-            if (rv != null)
-            {
-                return rv;
-            }
-            string type = Meta.getColumnTypeName(ConvertOrdnal(ordinal));
-            switch (type)
-            {
-                case "TIMESTAMP":
-                case "DATE":
-                    return typeof(DateTime);
-            }
-            object temp = null;
-            try
-            {
-                temp = set.getObject(ConvertOrdnal(ordinal));
-            }
-            catch (Exception)
-            {
-                //Console.WriteLine(ex);
-                //temp = set.getObject(ConvertOrdnal(ordinal));
-            }
-            if (temp == null)
-                throw new NotImplementedException(type);
-
-            Type result = temp.GetType();
-            if (result == typeof(java.lang.Integer))
-            {
-                result = typeof(int);
-            }
-            else if (result == typeof(java.lang.Long))
-            {
-                result = typeof(long);
-            }
-            else if (result == typeof(java.lang.Short))
-            {
-                result = typeof(short);
-            }
-            else if (result == typeof(java.lang.String))
-            {
-                result = typeof(String);
-            }
-            else if (result == typeof(java.util.Date))
-            {
-                result = typeof(DateTime);
-            }
-            else if (result == typeof(java.sql.Date))
-            {
-                result = typeof(DateTime);
-            }
-            else if (result == typeof(java.sql.Timestamp))
-            {
-                result = typeof(DateTime);
-            }
-            return result;
+            return H2Helper.GetType(typeCode);
         }
         public override float GetFloat(int ordinal)
         {

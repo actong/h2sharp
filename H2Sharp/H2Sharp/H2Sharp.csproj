@@ -45,119 +45,119 @@
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.84.0.0, Culture=neutral, PublicKeyToken=1b03e6acf1164f73">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.AWT.WinForms, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.AWT.WinForms.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.AWT.WinForms.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Beans, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Beans.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Beans.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Charsets, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Charsets.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Charsets.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Corba, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Corba.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Corba.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Core, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Core.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Core.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Jdbc, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Jdbc.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Jdbc.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Management, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Management.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Management.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Media, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Media.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Media.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Misc, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Misc.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Misc.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Naming, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Naming.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Naming.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Remoting, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Remoting.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Remoting.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Security, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Security.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Security.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.SwingAWT, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.SwingAWT.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.SwingAWT.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Text, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Text.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Text.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Util, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.Util.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.Util.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.XML.API, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.XML.API.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.XML.API.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.XML.Bind, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.XML.Bind.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.XML.Bind.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.XML.Crypto, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.XML.Crypto.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.XML.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.XML.Parse, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.XML.Parse.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.XML.Parse.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.XML.RelaxNG, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.XML.RelaxNG.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.XML.RelaxNG.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.XML.Transform, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.XML.Transform.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.XML.Transform.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.XML.WebServices, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.XML.WebServices.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.XML.WebServices.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.XML.XPath, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.OpenJDK.XML.XPath.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.OpenJDK.XML.XPath.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.Reflection.Emit, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.Reflection.Emit.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.Reflection.Emit.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.Reflection.Emit.MdbWriter, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.Reflection.Emit.MdbWriter.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.Reflection.Emit.MdbWriter.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.Reflection.Emit.PdbWriter, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.Reflection.Emit.PdbWriter.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.Reflection.Emit.PdbWriter.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.Runtime, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.Runtime.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.Runtime.JNI, Version=0.42.0.6, Culture=neutral, PublicKeyToken=13235d27fcbfff58, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dlls\IKVM.Runtime.JNI.dll</HintPath>
+      <HintPath>$(IKVM_HOME)\bin\IKVM.Runtime.JNI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -201,4 +201,7 @@
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent>cmd.exe /C ..\..\CheckEnv.cmd</PreBuildEvent>
+  </PropertyGroup>
 </Project>
