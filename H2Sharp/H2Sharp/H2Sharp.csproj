@@ -16,6 +16,8 @@
     </UpgradeBackupLocation>
     <OldToolsVersion>2.0</OldToolsVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>H2Sharp.snk.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -204,4 +206,7 @@
   <PropertyGroup>
     <PreBuildEvent>cmd.exe /C ..\..\CheckEnv.cmd</PreBuildEvent>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="H2Sharp.snk.pfx" />
+  </ItemGroup>
 </Project>
