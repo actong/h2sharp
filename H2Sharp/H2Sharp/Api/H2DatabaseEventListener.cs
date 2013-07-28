@@ -70,20 +70,6 @@ namespace System.Data.H2.Api
         /// </summary>
         protected abstract void OnClosingDatabase();
 
-        void org.h2.api.DatabaseEventListener.diskSpaceIsLow()
-        {
-            OnDiskSpaceIsLow();
-        }
-        /// <summary>
-        /// This method is called if the disk space is very low.
-        /// One strategy is to inform the user and wait for it to clean up disk space.
-        /// Another strategy is to send an email to the administrator in this method and
-        /// then throw a SQLException. The database should not be accessed from
-        /// within this method (even to close it).
-        /// </summary>
-        /// <remarks>throw SQLException if the operation should be cancelled</remarks>
-        protected abstract void OnDiskSpaceIsLow();
-
         void org.h2.api.DatabaseEventListener.exceptionThrown(java.sql.SQLException e, String sql)
         {
             OnExceptionThrown(new H2Exception(e), sql);

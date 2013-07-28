@@ -67,7 +67,7 @@ namespace System.Data.H2
         /// <param name="quiet">don't print progress information</param>
         public static void Restore(String zipFileName, String directory, String db, bool quiet)
         {
-            org.h2.tools.Restore.execute(zipFileName, directory, db, quiet);
+            org.h2.tools.Restore.execute(zipFileName, directory, db);
         }
         /// <summary>
         /// Changes the password for a database. The passwords must be supplied as char arrays and are cleaned in this method. 
@@ -103,7 +103,7 @@ namespace System.Data.H2
         /// <param name="continueOnError">if execution should be continued if an error occurs</param>
         public static void RunScript(String url, String user, String password, String fileName, String charsetName, bool continueOnError)
         {
-            org.h2.tools.RunScript.execute(url, user, password, fileName, charsetName, continueOnError);
+            org.h2.tools.RunScript.execute(url, user, password, fileName, java.nio.charset.Charset.forName(charsetName), continueOnError);
         }
     }
 }
