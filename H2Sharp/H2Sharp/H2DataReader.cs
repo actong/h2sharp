@@ -87,11 +87,11 @@ namespace System.Data.H2
         }
         public override object this[string name]
         {
-            get { return set.getObject(name); }
+            get { return GetValue(GetOrdinal(name)); }
         }
         public override object this[int ordinal]
         {
-            get { return set.getObject(ConvertOrdinal(ordinal)); }
+            get { return GetValue(ordinal); }
         }
         public override int Depth
         {

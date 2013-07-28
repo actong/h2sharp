@@ -64,22 +64,29 @@ namespace H2Examples
 
                 readerCount++;
                 Debug.Assert(item == readerCount);
+                CheckVal(reader["ITEM"], readerCount);
 
                 switch (item)
                 {
                     case 1:
                         Debug.Assert(description == "First Item");
                         Debug.Assert(value == 10);
+                        CheckVal(reader["description"], "First Item");
+                        CheckVal(reader["Value"], 10);
                         break;
 
                     case 2:
                         Debug.Assert(description == "First item modified");
                         Debug.Assert(value == 12);
+                        CheckVal(reader["description"], "First item modified");
+                        CheckVal(reader["Value"], 12);
                         break;
 
                     case 3:
                         Debug.Assert(description == "Third");
                         Debug.Assert(value == 15);
+                        CheckVal(reader["description"], "Third");
+                        CheckVal(reader["Value"], 15);
                         break;
 
                     default:
