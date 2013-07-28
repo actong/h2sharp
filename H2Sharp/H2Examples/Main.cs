@@ -40,6 +40,56 @@ namespace H2Examples
             var x2 = table2.ToXml();
             Debug.Assert(x1.Equals(x2));
 
+            H2DataReader reader = adapter.SelectCommand.ExecuteReader();
+            int readerCount = 0;
+
+            Debug.Assert(reader.GetOrdinal("item") == 0);
+            Debug.Assert(reader.GetOrdinal("Description") == 1);
+            Debug.Assert(reader.GetOrdinal("VALUE") == 2);
+
+            try
+            {
+                reader.GetOrdinal("throwException");
+                Debug.Fail("Exception not thrown for GetOrdinal");
+            }
+            catch (IndexOutOfRangeException)
+            {
+            }
+
+            while (reader.Read())
+            {
+                int item = reader.GetInt32(0);
+                string description = reader.GetString(1);
+                int value = reader.GetInt32(2);
+
+                readerCount++;
+                Debug.Assert(item == readerCount);
+
+                switch (item)
+                {
+                    case 1:
+                        Debug.Assert(description == "First Item");
+                        Debug.Assert(value == 10);
+                        break;
+
+                    case 2:
+                        Debug.Assert(description == "First item modified");
+                        Debug.Assert(value == 12);
+                        break;
+
+                    case 3:
+                        Debug.Assert(description == "Third");
+                        Debug.Assert(value == 15);
+                        break;
+
+                    default:
+                        Debug.Fail("Unexpected item");
+                        break;
+                }
+            }
+
+            Debug.Assert(readerCount == 3);
+
             var count = new H2Command("select count(*) from list", connection).ExecuteScalar();
             Debug.Assert(((long)count).Equals(3));
             

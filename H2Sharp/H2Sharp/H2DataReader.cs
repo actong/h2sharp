@@ -37,7 +37,7 @@ namespace System.Data.H2
 
     public sealed class H2DataReader : DbDataReader
     {
-        private static int ConvertOrdnal(int ordinal)
+        private static int ConvertOrdinal(int ordinal)
         {
             if (ordinal == int.MaxValue) { throw new H2Exception("invalid ordinal"); }
             return ordinal+1;
@@ -67,7 +67,7 @@ namespace System.Data.H2
         }
         public override bool IsDBNull(int ordinal)
         {
-            return set.getObject(ConvertOrdnal(ordinal)) == null;
+            return set.getObject(ConvertOrdinal(ordinal)) == null;
         }
         public override bool NextResult()
         {
@@ -91,7 +91,7 @@ namespace System.Data.H2
         }
         public override object this[int ordinal]
         {
-            get { return set.getObject(ConvertOrdnal(ordinal)); }
+            get { return set.getObject(ConvertOrdinal(ordinal)); }
         }
         public override int Depth
         {
@@ -105,15 +105,15 @@ namespace System.Data.H2
 
         public override bool GetBoolean(int ordinal)
         {
-            return set.getBoolean(ConvertOrdnal(ordinal));
+            return set.getBoolean(ConvertOrdinal(ordinal));
         }
         public override byte GetByte(int ordinal)
         {
-            return set.getByte(ConvertOrdnal(ordinal));
+            return set.getByte(ConvertOrdinal(ordinal));
         }
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
         {
-            Byte[] rv = set.getBytes(ConvertOrdnal(ordinal));
+            Byte[] rv = set.getBytes(ConvertOrdinal(ordinal));
             Array.Copy(rv, dataOffset, buffer, bufferOffset, length);
             return length;
         }
@@ -141,7 +141,7 @@ namespace System.Data.H2
         }
         public override double GetDouble(int ordinal)
         {
-            return set.getDouble(ConvertOrdnal(ordinal));
+            return set.getDouble(ConvertOrdinal(ordinal));
         }
         public override System.Collections.IEnumerator GetEnumerator()
         {
@@ -161,12 +161,12 @@ namespace System.Data.H2
         }
         Type DoGetFieldType(int ordinal)
         {
-            int typeCode = Meta.getColumnType(ConvertOrdnal(ordinal));
+            int typeCode = Meta.getColumnType(ConvertOrdinal(ordinal));
             return H2Helper.GetType(typeCode);
         }
         public override float GetFloat(int ordinal)
         {
-            return set.getFloat(ConvertOrdnal(ordinal));
+            return set.getFloat(ConvertOrdinal(ordinal));
         }
         public override Guid GetGuid(int ordinal)
         {
@@ -174,19 +174,19 @@ namespace System.Data.H2
         }
         public override short GetInt16(int ordinal)
         {
-            return set.getShort(ConvertOrdnal(ordinal));
+            return set.getShort(ConvertOrdinal(ordinal));
         }
         public override int GetInt32(int ordinal)
         {
-            return set.getInt(ConvertOrdnal(ordinal));
+            return set.getInt(ConvertOrdinal(ordinal));
         }
         public override long GetInt64(int ordinal)
         {
-            return set.getLong(ConvertOrdnal(ordinal));
+            return set.getLong(ConvertOrdinal(ordinal));
         }
         public override string GetName(int ordinal)
         {
-            var i = ConvertOrdnal(ordinal);
+            var i = ConvertOrdinal(ordinal);
             var s = Meta.getColumnLabel(i);
             return s == null ? Meta.getColumnName(i) : s;
         }
@@ -194,12 +194,21 @@ namespace System.Data.H2
         {
             for (int index = 0; index < Meta.getColumnCount(); ++index)
             {
-                if (Meta.getColumnName(index) == name)
+                if (Meta.getColumnName(ConvertOrdinal(index)) == name)
                 {
                     return index;
                 }
             }
-            return -1;
+
+            for (int index = 0; index < Meta.getColumnCount(); ++index)
+            {
+                if (Meta.getColumnName(ConvertOrdinal(index)).Equals(name, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return index;
+                }
+            }
+
+            throw new IndexOutOfRangeException(string.Format(Properties.Resources.ColumnNotFound, name));
         }
         public override DataTable GetSchemaTable()
         {
@@ -288,7 +297,7 @@ namespace System.Data.H2
         }
         public override string GetString(int ordinal)
         {
-            return set.getString(ConvertOrdnal(ordinal));
+            return set.getString(ConvertOrdinal(ordinal));
         }
 
 
@@ -296,7 +305,7 @@ namespace System.Data.H2
 
         public override object GetValue(int ordinal)
         {
-            var convOrd = ConvertOrdnal(ordinal);
+            var convOrd = ConvertOrdinal(ordinal);
             object result = set.getObject(convOrd);
             if (result == null)
                 return DBNull.Value;
