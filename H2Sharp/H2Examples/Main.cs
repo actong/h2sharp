@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Data.H2;
 using System.Data.Common;
+using System.Globalization;
 using System.IO;
 using System.Diagnostics;
 namespace H2Examples
@@ -79,7 +80,7 @@ namespace H2Examples
             new H2Command("create table " + tn + " (value " + typeStr + " primary key)", connection).ExecuteNonQuery();
             var originalValueStr = 
                 (originalValue is string) ? "'" + originalValue + "'" : 
-                (originalValue is DateTime) ? "parsedatetime('" + originalValue + "', 'dd/MM/yyyy mm:hh:ss')" :
+                (originalValue is DateTime) ? "parsedatetime('" + ((DateTime)(object)originalValue).ToString(CultureInfo.InvariantCulture) + "', 'MM/dd/yyyy hh:mm:ss')" :
                     originalValue.ToString();
             new H2Command("insert into " + tn + " values (convert(" + originalValueStr + ", " + typeStr + "))", connection).ExecuteNonQuery();
 
